@@ -61,6 +61,9 @@ sudo apt-get upgrade
 ## Change the SSH port from 22 to 2200
 
 - Changing port from 22 to 2200 in file `/etc/ssh/sshd_config`
+
+* Changing `PermitRootLogin no`, to disable root login remotely
+
 - Reload SSH using `sudo service ssh restart`
 
 Note: for aws LightSail, in lightsail management consol, add a port for custom application <br />
