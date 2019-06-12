@@ -7,6 +7,10 @@ In this project, took a baseline installation of a Linux distribution on Amazon 
 
 * Public ip: `35.182.15.26`
 
+* SSH port: 2200
+
+* grader login: `ssh grader@35.182.15.26 -i ~/.ssh/[privateKeyFilename]`, password: `grader`
+
 ## SSH into AWS server
 
 - Download Private Key from the SSH keys section in the Account section on Amazon Lightsail, for example, to Download file on local computer
