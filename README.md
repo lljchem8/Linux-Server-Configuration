@@ -3,9 +3,9 @@
 This is the final project for "Full Stack Web Developer Nanodegree" on Udacity.
 In this project, took a baseline installation of a Linux distribution on Amazon lightsail and prepared it to host a flask web applications, to include installing updates, securing it from a number of attack vectors and installing/configuring web and database servers.
 
-- xip.io url: http://www.35.182.15.26.xip.io
+- xip.io url: `http://www.35.182.15.26.xip.io`
 
-* Public ip: 35.182.15.26.xip
+* Public ip: `35.182.15.26`
 
 ## SSH into AWS server
 
