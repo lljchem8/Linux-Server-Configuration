@@ -1,7 +1,7 @@
 # Linux-Server-Configuration
 
 This is the final project for "Full Stack Web Developer Nanodegree" on Udacity.
-In this project, took a baseline installation of a Linux distribution on a virtual machine and prepared it to host web applications, to include installing updates, securing it from a number of attack vectors and installing/configuring web and database servers.
+In this project, took a baseline installation of a Linux distribution on Amazon lightsail and prepared it to host a flask web applications, to include installing updates, securing it from a number of attack vectors and installing/configuring web and database servers.
 
 ## SSH into AWS server
 
@@ -96,6 +96,25 @@ sudo ufw enable
 
 ## Setup for flask app
 
+### Setup python virtual enviroment
+
+- Install virtualenv: sudo pip install virtualenv: `sudo pip3 install virtualenv` <br />
+
+* Set enviornment name using : `sudo virtualenv venv`
+
+* activating the virtual environment using: `source venv/bin/activate`
+
+* install all the packges:
+
+```
+sudo apt-get install python3-pip
+sudo pip3 install --upgrade pip
+pip3 install flask packaging oauth2client redis passlib flask-httpauth
+pip3 install sqlalchemy flask-sqlalchemy psycopg2-binary bleach requests
+```
+
+Note: in virtual environment, do not use sudo to install package, `sudo pip3 install` will install the package to global environment
+
 ### Install and configure Apache to serve a Python mod_wsgi application
 
 ```
@@ -121,13 +140,6 @@ sudo apt-get install git
 7. Rename `project.py` to `__init__.py` using `sudo mv project.py __init__.py`
 8. Edit `database_setup.py`, `lots_of_items.py` and `__init__.py`, change `engine = create_engine('sqlite:///catalog.db')` to `engine = create_engine('postgresql://catalog:password@localhost/catalog')`
 
-### Installing dependencies
-
-- `sudo apt-get install python3-pip`
-- `sudo pip3 install --upgrade pip`
-- `sudo pip3 install flask packaging oauth2client redis passlib flask-httpauth`
-- `sudo pip3 install sqlalchemy flask-sqlalchemy psycopg2-binary bleach requests`
-
 ### Create dummy database
 
 ```
@@ -140,25 +152,26 @@ Note: change the table name user to users in database_setup.py
 ### Configure and Enable a New Virtual Host
 
 - Create a file: `sudo nano /etc/apache2/sites-available/catalog.conf`
-- Write the following code into the catalog.conf file:
+- Write the following code into the catalog.conf file(`35.182.15.26.xip.io` is the [xip.io](http://xip.io/) address):
 
 ```
 <VirtualHost *:80>
-	ServerName item-catalog
-	ServerAdmin gokusayon@gmail.com
-	WSGIScriptAlias / /var/www/catalog/catalog.wsgi
-	<Directory /var/www/catalog/catalog/>
-		Order allow,deny
-		Allow from all
-	</Directory>
-	Alias /static /var/www/catalog/catalog/static
-	<Directory /var/www/catalog/catalog/static/>
-		Order allow,deny
-		Allow from all
-	</Directory>
-	ErrorLog ${APACHE_LOG_DIR}/error.log
-	LogLevel warn
-	CustomLog ${APACHE_LOG_DIR}/access.log combined
+    ServerName 35.182.15.26
+    ServerAlias 35.182.15.26.xip.io
+    ServerAdmin lljchem8@gmail.com
+    WSGIScriptAlias / /var/www/catalog/catalog.wsgi
+    <Directory /var/www/catalog/catalog/>
+        Order allow,deny
+        Allow from all
+    </Directory>
+    Alias /static /var/www/catalog/catalog/static
+    <Directory /var/www/catalog/catalog/static/>
+        Order allow,deny
+        Allow from all
+    </Directory>
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    LogLevel warn
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
 </VirtualHost>
 ```
 
@@ -173,9 +186,13 @@ cd /var/www/catalog
 sudo nano catalog.wsgi
 ```
 
-Add the following lines of code to the catalog.wsgi file:
+Add the following lines of code to the catalog.wsgi file, the fisrt three lines are for python virtual environment:
 
 ```
+activate_this = '/var/www/catalog/catalog/venv/bin/activate_this.py'
+with open(activate_this) as file_:
+    exec(file_.read(), dict(__file__=activate_this))
+
 #!/usr/bin/python3
 import sys
 import logging
@@ -186,7 +203,39 @@ from catalog import app as application
 application.secret_key = 'Add your secret key'
 ```
 
+### Oauth Login
+
+- Add http://35.182.15.26 and http://www.35.182.15.26.xip.io to JavaScript origins
+- Add http://www.35.182.15.26.xip.io/login and http://www.35.182.15.26.xip.io/gconnect to redirect URIs
+- Download the new JSON file of this new setup
+
+Note: Google Oauth does not support public address for redirect URI
+
+Directory structure:
+
+<pre>
+| -------- catalog
+    |---------------- catalog
+        |-----------------------static
+        |-----------------------templates
+        |-----------------------ven
+        |-----------------------__init__.py
+    |----------------catalog.wsgi
+</pre>
+
 ### Restart Apache
 
 Restart Apache with the following command to apply the changes:
 `sudo service apache2 restart`
+
+Now you should be able to run the application at [homepage](http://www.35.182.15.26.xip.io/)
+
+### Debugging
+
+If you are getting an Internal Server Error or any other error(s), make sure to check out Apache's error log for debugging:<br/>
+`sudo cat /var/log/apache2/error.log`
+
+## Reference
+
+[1] https://www.digitalocean.com/community/tutorials/how-to-deploy-a-flask-application-on-an-ubuntu-vps <br />
+[2] http://terokarvinen.com/2016/deploy-flask-python3-on-apache2-ubuntu
