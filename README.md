@@ -3,6 +3,10 @@
 This is the final project for "Full Stack Web Developer Nanodegree" on Udacity.
 In this project, took a baseline installation of a Linux distribution on Amazon lightsail and prepared it to host a flask web applications, to include installing updates, securing it from a number of attack vectors and installing/configuring web and database servers.
 
+- xip.io url: http://www.35.182.15.26.xip.io
+
+* Public ip: 35.182.15.26.xip
+
 ## SSH into AWS server
 
 - Download Private Key from the SSH keys section in the Account section on Amazon Lightsail, for example, to Download file on local computer
@@ -186,7 +190,7 @@ cd /var/www/catalog
 sudo nano catalog.wsgi
 ```
 
-Add the following lines of code to the catalog.wsgi file, the fisrt three lines are for python virtual environment:
+Add the following lines of code to the catalog.wsgi file, the fisrt three lines are for python3 virtual environment:
 
 ```
 activate_this = '/var/www/catalog/catalog/venv/bin/activate_this.py'
