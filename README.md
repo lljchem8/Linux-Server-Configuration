@@ -211,7 +211,7 @@ application.secret_key = 'Add your secret key'
 
 Note: Google Oauth does not support public address for redirect URI
 
-Directory structure:
+### Directory structure
 
 <pre>
 | -------- catalog
