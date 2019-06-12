@@ -6,16 +6,13 @@ In this project, took a baseline installation of a Linux distribution on a virtu
 ## SSH into AWS server
 
 - Download Private Key from the SSH keys section in the Account section on Amazon Lightsail, for example, to Download file on local computer
-- Move the private key file into the folder ~/.ssh:
-
+- Move the private key file into the folder ~/.ssh: <br />
   `mv ~/Downloads/Lightsail-key.pem ~/.ssh/`
 
-- Change the permission of the file:
-
+- Change the permission of the file: <br />
   `chmod 400 ~/.ssh/Lightsail-key.pem`
 
-- Remontely login via the local terminal to Amazon Lightsail:
-
+- Remontely login via the local terminal to Amazon Lightsail: <br />
   `ssh ubuntu@35.182.15.26 -i ~/.ssh/LightsailDefaultKey-ca-central-1.pem`
 
 ## Create a new user grader on linux
@@ -46,8 +43,7 @@ chmod 700 .ssh
 chmod 644 .ssh/authorized_keys
 ```
 
-After completing all these steps, you can login with the new user you created
-
+After completing all these steps, you can login with the new user you created <br />
 `ssh grader@35.182.15.26 -i ~/.ssh/[privateKeyFilename]`
 then type the password `grader`
 
@@ -63,8 +59,7 @@ sudo apt-get upgrade
 - Changing port from 22 to 2200 in file `/etc/ssh/sshd_config`
 - Reload SSH using `sudo service ssh restart`
 
-Note: for aws LightSail, in lightsail management consol, add a port for custom application
-
+Note: for aws LightSail, in lightsail management consol, add a port for custom application <br />
 `Application = Custom, Protocol = TCP, Port = 2200`
 
 ## Configure the Uncomplicated Firewall (UFW)
@@ -84,27 +79,114 @@ sudo ufw enable
 
 `sudo dpkg-reconfigure tzdata`, scroll to the bottom of the Continents list and select Etc or None of the above; in the second list, select UTC
 
-## Install and configure Apache to serve a Python mod_wsgi application
-
-1. Install Apache `sudo apt-get install apache2`
-2. install the Python 3 mod_wsgi package `sudo apt-get install libapache2-mod-wsgi-py3`
-3. Restart Apache `sudo service apache2 restart`
-
 ## Install and configure PostgreSQL
 
 1. Install PostgreSQL `sudo apt-get install postgresql`
 2. Check if no remote connections are allowed `sudo cat /etc/postgresql/9.3/main/pg_hba.conf`
 3. Login in as user postgres by `sudo su - postgres`
 4. Get into PostgreSQL by `psql`
-5. Create a new database named catalog and create a new user named catalog in postgreSQL shell
+5. Create a new database named catalog and create a new user named catalog in postgreSQL shell<br />
+   `CREATE USER catalog WITH PASSWORD 'password';` <br />
+   `CREATE DATABASE catalog WITH OWNER catalog;`
 
-```
-CREATE USER catalog WITH PASSWORD 'password';
-CREATE DATABASE catalog WITH OWNER catalog;
-```
-
-6. Give user "catalog" permission to "catalog" application database
-
+6. Give user "catalog" permission to "catalog" application database <br />
    `GRANT ALL PRIVILEGES ON DATABASE catalog TO catalog;`
 
 7. Exit from user "postgres": `\q`, then `exit`
+
+## Setup for flask app
+
+### Install and configure Apache to serve a Python mod_wsgi application
+
+```
+sudo apt-get install apache2
+sudo apt-get install libapache2-mod-wsgi-py3 python-dev
+sudo service apache2 restart
+```
+
+### Install git
+
+```
+sudo apt-get install git
+```
+
+### Clone and setup catalog app
+
+1. Change the directory to the /var/www directory `cd /var/www`
+2. Create the application directory `sudo mkdir catalog`
+3. Change the to FlaskApp `cd catalog`
+4. Clone the project catalog `sudo git clone https://github.com/lljchem8/Item-Catalog-fullstack.git`
+5. Rename the project name `sudo mv ./Item-Catalog-fullstack/ ./catalog/`
+6. Move to the inner FlaskApp directory using `cd catalog`
+7. Rename `project.py` to `__init__.py` using `sudo mv project.py __init__.py`
+8. Edit `database_setup.py`, `lots_of_items.py` and `__init__.py`, change `engine = create_engine('sqlite:///catalog.db')` to `engine = create_engine('postgresql://catalog:password@localhost/catalog')`
+
+### Installing dependencies
+
+- `sudo apt-get install python3-pip`
+- `sudo pip3 install --upgrade pip`
+- `sudo pip3 install flask packaging oauth2client redis passlib flask-httpauth`
+- `sudo pip3 install sqlalchemy flask-sqlalchemy psycopg2-binary bleach requests`
+
+### Create dummy database
+
+```
+python3 database_setup.py
+python3 lots_of_items.py
+```
+
+Note: change the table name user to users in database_setup.py
+
+### Configure and Enable a New Virtual Host
+
+- Create a file: `sudo nano /etc/apache2/sites-available/catalog.conf`
+- Write the following code into the catalog.conf file:
+
+```
+<VirtualHost *:80>
+	ServerName item-catalog
+	ServerAdmin gokusayon@gmail.com
+	WSGIScriptAlias / /var/www/catalog/catalog.wsgi
+	<Directory /var/www/catalog/catalog/>
+		Order allow,deny
+		Allow from all
+	</Directory>
+	Alias /static /var/www/catalog/catalog/static
+	<Directory /var/www/catalog/catalog/static/>
+		Order allow,deny
+		Allow from all
+	</Directory>
+	ErrorLog ${APACHE_LOG_DIR}/error.log
+	LogLevel warn
+	CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+```
+
+- Enable it using command: `sudo a2ensite catalog`
+
+### Create the .wsgi File
+
+- Apache uses the .wsgi file to serve the Flask app. Move to the /var/www/catalog directory and create a file named catalog.wsgi with following commands:
+
+```
+cd /var/www/catalog
+sudo nano catalog.wsgi
+```
+
+Add the following lines of code to the catalog.wsgi file:
+
+```
+#!/usr/bin/python3
+import sys
+import logging
+logging.basicConfig(stream=sys.stderr)
+sys.path.insert(0,"/var/www/catalog/")
+
+from catalog import app as application
+application.secret_key = 'Add your secret key'
+```
+
+### Restart Apache
+
+Restart Apache with the following command to apply the changes:
+`sudo service apache2 restart`
