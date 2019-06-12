@@ -64,6 +64,8 @@ sudo apt-get upgrade
 
 * Changing `PermitRootLogin no`, to disable root login remotely
 
+* Check in `/etc/ssh/sshd_config` file if `PasswordAuthentication` is set to no
+
 - Reload SSH using `sudo service ssh restart`
 
 Note: for aws LightSail, in lightsail management consol, add a port for custom application <br />
