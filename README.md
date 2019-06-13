@@ -5,11 +5,13 @@ In this project, took a baseline installation of a Linux distribution on Amazon 
 
 - xip.io url: `http://www.35.182.15.26.xip.io`
 
-* Public ip: `35.182.15.26`
+* public ip: `35.182.15.26`
 
 * SSH port: 2200
 
 * grader login: `ssh grader@35.182.15.26 -i ~/.ssh/[privateKeyFilename]`, password: `grader`
+
+* software and packages: `postgresql`, `python3`, `libapache2-mod-wsgi-py3`, `flask, packaging, oauth2client, redis, passlib, flask-httpauth`, `sqlalchemy, flask-sqlalchemy, psycopg2-binary, bleach, requests`
 
 ## SSH into AWS server
 
@@ -57,10 +59,7 @@ then type the password `grader`
 
 ## Update all currently installed packages
 
-```
-sudo apt-get update
-sudo apt-get upgrade
-```
+`sudo apt-get update && sudo apt-get dist-upgrade`
 
 ## Change the SSH port from 22 to 2200
 
