@@ -110,7 +110,7 @@ sudo ufw enable
 
 ### Setup python virtual enviroment
 
-- Install virtualenv: sudo pip install virtualenv: `sudo pip3 install virtualenv` <br />
+- Install virtualenv: `sudo pip3 install virtualenv` <br />
 
 * Set enviornment name using : `sudo virtualenv venv`
 
